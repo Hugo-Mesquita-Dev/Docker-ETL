@@ -1,107 +1,178 @@
-Pipeline de Dados com Docker, Spark e Airflow
-https://img.shields.io/badge/license-MIT-blue.svg
-https://img.shields.io/badge/Docker-%E2%89%A520.10.8-blue
-https://img.shields.io/badge/Spark-3.5.0-red
 
-Pipeline ETL completo para processamento de dados, com:
-✅ Extração, Transformação e Carga (Spark)
-✅ Orquestração (Airflow)
-✅ Armazenamento (PostgreSQL)
-✅ Visualização (Grafana + Metabase)
-✅ Monitoramento (Prometheus)
+# 🚀 Projeto Docker-ETL: Pipeline de Dados com Spark, Airflow e Grafana
 
-🚀 Começando
-Pré-requisitos
-Docker 20+
+Este projeto implementa um pipeline de dados completo usando:
 
-Docker Compose 2.10+
+- ⚙️ **Spark** para processamento ETL
+- 🎯 **Airflow** para orquestração
+- 🗄️ **PostgreSQL** como banco de dados
+- 📊 **Grafana** e **Metabase** para visualização
+- 📈 **Prometheus** para monitoramento
 
-4GB+ RAM disponível
+Tudo containerizado com **Docker** para fácil reprodução e escalabilidade.
 
-bash
-git clone https://github.com/seu-usuario/docker-etl-pipeline.git
-cd docker-etl-pipeline
-🛠️ Configuração
-Estrutura de Arquivos:
+---
 
-text
-.
-├── data/
-│   ├── input/          # Dados brutos (CSV/JSON)
-│   └── output/         # Dados processados (Parquet)
-├── airflow/
-│   ├── dags/           # Pipelines do Airflow
-│   └── plugins/        # Plugins customizados
-├── grafana/
-│   └── provisioning/   # Dashboards e fontes de dados
-├── scripts/
-│   └── etl_spark.py    # Código principal do ETL
-├── docker-compose.yml  # Definição dos serviços
-└── Dockerfile          # Imagem customizada do Spark
+## 📋 Pré-requisitos
+
+- Docker Engine **20+**
+- Docker Compose **2.10+**
+- **4GB+** de RAM disponível
+
+---
+
+## 🚀 Instalação
+
+Clone o repositório:
+
+```bash
+git clone [URL_DO_SEU_REPO]
+cd Docker-ETL
+```
+
 Inicie os containers:
 
-bash
+```bash
 docker-compose up -d --build
-🌐 Acesse as Ferramentas
-Serviço	URL	Credenciais
-Airflow	http://localhost:8080	admin/admin
-Grafana	http://localhost:3001	admin/admin
-Metabase	http://localhost:3000	Configurar 1º acesso
-Prometheus	http://localhost:9090	-
-🔄 Fluxo de Dados
-Spark ETL processa dados de data/input/:
+```
 
-python
-# scripts/etl_spark.py
-df_vendas = spark.read.csv("/app/data/input/vendas.csv")
-df_vendas.write.jdbc(url=DB_URL, table="vendas")
-Airflow agenda execuções diárias:
+Acesse as ferramentas:
 
-python
-# airflow/dags/spark_etl_dag.py
-with DAG('etl_daily', schedule_interval='@daily'):
-    run_spark = DockerOperator(task_id='run_spark_etl')
-Grafana visualiza os dados:
+- **Airflow:** [http://localhost:8080](http://localhost:8080) — *Login:* `admin` / *Senha:* `admin`
+- **Grafana:** [http://localhost:3001](http://localhost:3001) — *Login:* `admin` / *Senha:* `admin`
+- **Metabase:** [http://localhost:3000](http://localhost:3000) — *(configurar no primeiro acesso)*
+- **Prometheus:** [http://localhost:9090](http://localhost:9090)
 
-sql
-SELECT categoria, SUM(valor) FROM vendas GROUP BY 1
-🛑 Comandos Úteis
-Função	Comando
-Reiniciar serviços	docker-compose restart
-Ver logs	docker-compose logs -f
-Parar tudo	docker-compose down
-Limpar dados	docker-compose down -v
-Executar ETL manual	docker-compose run spark-etl
-📊 Dashboards Recomendados
-Grafana:
+---
 
-Importe via ID:
+## 🛠️ Estrutura do Projeto
 
-10258 (Spark Monitoring)
+```
+Docker-ETL/
+├── data/               # Dados de entrada/saída
+│   ├── input/          # CSVs/JSONs de origem
+│   └── output/         # Dados processados (Parquet)
+├── airflow/            # DAGs e configurações
+├── grafana/            # Dashboards e datasources
+├── scripts/            # Códigos Spark
+├── docker-compose.yml  # Orquestração dos serviços
+└── Dockerfile          # Imagem customizada do Spark
+```
 
-9628 (PostgreSQL)
+---
 
-Metabase:
+## 🔄 Fluxo de Dados
 
-Crie questões SQL com:
+- **Extração:**
+  - Spark lê os arquivos `data/input/vendas_2023.csv` e `produtos.json`.
 
-sql
-SELECT * FROM vendas WHERE data > NOW() - INTERVAL '7 days'
-⁉️ Solução de Problemas
-Erro comum: "Tabela vendas não existe"
-bash
-# Execute o ETL manualmente
-docker-compose run spark-etl
+- **Transformação:**
+  - Limpeza, joins e agregações realizadas (ver arquivo `scripts/etl_spark.py`).
 
-# Verifique no PostgreSQL
-docker-compose exec postgres psql -U postgres -d vendas_db -c "\dt"
-Spark não inicia
-bash
-docker-compose logs spark-etl | grep ERROR
-📄 Licença
-MIT License - Consulte o arquivo LICENSE para detalhes.
+- **Carga:**
+  - Grava os dados em:
+    - Banco **PostgreSQL** (tabela `vendas`)
+    - Arquivos **Parquet** em `data/output/`
 
-Contribuições são bem-vindas!
-🔧 Reporte issues ou envie PRs.
+- **Visualização:**
+  - Dashboards no **Grafana** e **Metabase**.
 
-✨ Dica: Após o primeiro setup, acesse http://localhost:8080 para configurar as DAGs no Airflow!
+---
+
+## ⚙️ Configuração Avançada
+
+### 🔧 Variáveis de Ambiente
+
+Edite o arquivo `docker-compose.yml` para ajustar:
+
+```yaml
+environment:
+  POSTGRES_PASSWORD: senha123       # 🔒 Altere para produção!
+  AIRFLOW__CORE__FERNET_KEY: sua_chave_aqui
+```
+
+### ➕ Adicionar Novas DAGs
+
+Coloque seus workflows no diretório:
+
+```
+airflow/dags/
+```
+
+### 📈 Monitoramento Customizado
+
+Edite o arquivo `prometheus.yml` para adicionar novas métricas ou targets.
+
+---
+
+## 🛑 Comandos Úteis
+
+| Função               | Comando                                        |
+|----------------------|------------------------------------------------|
+| Reiniciar serviços   | `docker-compose restart`                      |
+| Ver logs             | `docker-compose logs -f [serviço]`            |
+| Parar tudo           | `docker-compose down`                         |
+| Limpar dados         | `docker-compose down -v`                      |
+
+---
+
+## 📊 Dashboards Recomendados
+
+### 🔹 **Grafana**
+
+- **Spark:** ID `10258`
+- **PostgreSQL:** ID `9628`
+
+### 🔸 **Metabase**
+
+Crie questões SQL como:
+
+```sql
+SELECT * 
+FROM vendas 
+WHERE data > NOW() - INTERVAL '7 days';
+```
+
+---
+
+## ⁉️ Solução de Problemas
+
+### ⚠️ Erro no Spark
+
+```bash
+docker-compose exec spark-etl tail -n 50 /opt/spark/logs/spark.log
+```
+
+### ⚠️ Airflow não inicia
+
+```bash
+docker-compose exec airflow airflow db check
+```
+
+### ⚠️ Grafana sem dados
+
+Verifique se o datasource **Prometheus** está configurado corretamente:
+
+```
+URL: http://prometheus:9090
+```
+
+---
+
+## 📄 Licença
+
+📝 MIT License — Use livremente para projetos pessoais e comerciais.
+
+Contribuições são bem-vindas!  
+👉 Envie PRs ou abra issues no GitHub.
+
+---
+
+## 🔗 Links Úteis
+
+- [Documentação Spark](https://spark.apache.org/docs/latest/)
+- [Guia Airflow](https://airflow.apache.org/docs/)
+
+---
+
+**Happy Coding! 🚀**
