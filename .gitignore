@@ -1,0 +1,9 @@
+# Logs e databases
+airflow/logs/
+airflow/airflow.db
+data/output/
+*.log
+
+# Arquivos temporários
+*.tmp
+*.swp

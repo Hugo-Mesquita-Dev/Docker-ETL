@@ -1,0 +1,9 @@
+{
+    "title": "Spark Monitoring",
+    "uid": "spark-monitoring",
+    "tags": ["spark", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 27,
+    "refresh": "30s",
+    "panels": []
+  }

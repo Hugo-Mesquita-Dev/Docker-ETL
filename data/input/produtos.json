@@ -1,0 +1,4 @@
+[
+    {"id_produto": 101, "nome": "Smartphone", "categoria": "eletrônicos"},
+    {"id_produto": 102, "nome": "Livro", "categoria": "livros"}
+  ]

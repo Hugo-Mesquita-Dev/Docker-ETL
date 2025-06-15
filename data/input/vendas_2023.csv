@@ -1,0 +1,3 @@
+id_venda,data,id_produto,quantidade,valor_total,cliente_id
+1,2023-01-01,101,2,199.90,1001
+2,2023-01-02,102,1,89.90,1002
